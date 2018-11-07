@@ -1,0 +1,1 @@
+<?php require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/nauka.attachments/admin/nauka_attachments_list.php");?>
