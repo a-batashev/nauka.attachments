@@ -2,5 +2,5 @@
 if (!check_bitrix_sessid())
 	return;
 
-echo CAdminMessage::ShowNote(getMessage('NAUKA_TYPOGRAPH_UNINSTALL_SUCCESS'));
+echo CAdminMessage::ShowNote(getMessage('NAUKA_ATTACHMENTS_UNINSTALL_SUCCESS'));
 ?>
