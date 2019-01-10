@@ -50,16 +50,12 @@ class nauka_attachments extends CModule {
 		RegisterModule($this->MODULE_ID);
 		
 		RegisterModuleDependences("fileman", "OnBeforeHTMLEditorScriptRuns", $this->MODULE_ID, "CNaukaAttachments", "OnBeforeHTMLEditorScriptRunsHandler" );
-		//RegisterModuleDependences("iblock", "OnBeforeIBlockElementUpdate", $this->MODULE_ID, "CNaukaAttachments", "OnBeforeIBlockElementAddOrUpdateHandler");
-		//RegisterModuleDependences("iblock", "OnBeforeIBlockElementAdd", $this->MODULE_ID, "CNaukaAttachments", "OnBeforeIBlockElementAddOrUpdateHandler");
 		
 		$this->InstallFiles();
 	}
 
 	public function DoUninstall() {
 		UnRegisterModuleDependences("fileman", "OnBeforeHTMLEditorScriptRuns", $this->MODULE_ID, "CNaukaAttachments", "OnBeforeHTMLEditorScriptRunsHandler" );
-		//UnRegisterModuleDependences("iblock", "OnBeforeIBlockElementUpdate", $this->MODULE_ID, "CNaukaAttachments", "OnBeforeIBlockElementAddOrUpdateHandler");
-		//UnRegisterModuleDependences("iblock", "OnBeforeIBlockElementAdd", $this->MODULE_ID, "CNaukaAttachments", "OnBeforeIBlockElementAddOrUpdateHandler");
 		
 		UnRegisterModule($this->MODULE_ID);
 		
