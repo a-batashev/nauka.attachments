@@ -2,7 +2,11 @@
 global $MESS;
 
 $langPath = str_replace("\\", "/", __FILE__);
-$langPath = substr($langPath, 0, strlen($langPath) - strlen("/install/index.php"));
+$langPath = substr(
+	$langPath,
+	0,
+	strlen($langPath) - strlen("/install/index.php")
+);
 include(GetLangFileName($langPath . "/lang/", "/install/index.php"));
 
 class nauka_attachments extends CModule {
