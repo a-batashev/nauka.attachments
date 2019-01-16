@@ -5,51 +5,40 @@ BX.addCustomEvent('OnEditorInitedBefore', function() {
 		id: 'nauka_attachments', // button id
 		name: BX.message('NAUKA_ATTACHMENTS_BUTTON_TITLE'), // button title
 		handler: function() { // button onclick
-			
-			// Take post data from URL
+
+			// Take IBLOCK_ID and ID from URL
 			var content_post = window.location.search.match(/((IBLOCK_ID|ID)=\d+)/g).join("&");
-			
+
 			var NaukaDialog = new BX.CDialog({
 				title: BX.message('NAUKA_ATTACHMENTS_DIALOG_TITLE'),
-				//content: "No files attached.", //BX.findChildByClassName(BX('tr_PROPERTY_5808'), 'adm-detail-content-cell-r'),
 				content_url: '/bitrix/admin/nauka_attachments_list.php',
 				content_post: content_post,
-				width: 600,
-				height: 600,
-				buttons:
-				[
-					/*{
-						title: BX.message('NAUKA_ATTACHMENTS_DIALOG_PASTE'),
-						id: 'nauka_paste',
-						action: function() {
-							
-							console.log(this);
-							
-							this.parentWindow.Close();
-						},
-					},*/
-					BX.CDialog.prototype.btnClose
-				]
+				width: 640,
+				buttons: [BX.CDialog.prototype.btnClose]
 			});
 			NaukaDialog.Show();
-			
+
 			BX.bindDelegate(
 				BX(NaukaDialog.GetContent()),
 				'click',
 				{
-					className: 'insert-files'
+					className: 'insert-file'
 				},
-				function () {
-					console.log(this);
-					_this.selection.InsertHTML(this.innerHTML);
+				function() {
+					var
+						isImage = this.hasAttribute('data-image'),
+						src = this.getAttribute('data-src'),
+						filename = this.getAttribute('data-filename'),
+						innerHtml = '';
+					if (isImage) {
+						innerHtml = '<img src="' + src + '" alt="' + filename + '" />';
+					} else {
+						innerHtml = '<a href="' + src + '">' + filename + '</a>';
+					}
+					_this.selection.InsertHTML(innerHtml);
 				}
 			);
-			
-			//console.log(BX(NaukaDialog.GetContent()));
-			
-			
-			//$html = '<p>TEST</p>'
-			//_this.selection.InsertHTML($html);
+
 		}
 	});
 });
