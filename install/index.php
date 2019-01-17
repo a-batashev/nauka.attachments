@@ -30,7 +30,7 @@ class nauka_attachments extends CModule {
 		$this->MODULE_NAME = getMessage('NAUKA_ATTACHMENTS_MODULE_NAME');
 		$this->MODULE_DESCRIPTION = getMessage('NAUKA_ATTACHMENTS_MODULE_DESCRIPTION');
 		
-		$this->PARTNER_NAME = "AA.Batashev";
+		$this->PARTNER_NAME = "Баташев Антон";
 		$this->PARTNER_URI = "https://npo-nauka.ru";
 	}
 
