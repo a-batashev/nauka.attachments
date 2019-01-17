@@ -29,9 +29,14 @@ BX.addCustomEvent('OnEditorInitedBefore', function() {
 						isImage = this.hasAttribute('data-image'),
 						src = this.getAttribute('data-src'),
 						filename = this.getAttribute('data-filename'),
+						maxwidth = this.getAttribute('data-maxwidth'),
+						width = '',
 						innerHtml = '';
+					if (maxwidth) {
+						width = 'width="' + maxwidth + '" ';
+					}
 					if (isImage) {
-						innerHtml = '<img src="' + src + '" alt="' + filename + '" />';
+						innerHtml = '<img src="' + src + '" alt="' + filename + '" ' + width + '/>';
 					} else {
 						innerHtml = '<a href="' + src + '">' + filename + '</a>';
 					}

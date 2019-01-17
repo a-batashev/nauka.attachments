@@ -7,6 +7,7 @@ if ($_POST["IBLOCK_ID"] && $_POST["ID"]) {
 	$IBLOCK_ID = intval($_POST["IBLOCK_ID"]);
 	$ID = intval($_POST["ID"]);
 	$PROPERTY_CODE = "FILES";
+	$IMG_MAXWIDTH = 600;
 
 	if (CModule::IncludeModule("iblock")) {
 
@@ -31,6 +32,7 @@ if ($_POST["IBLOCK_ID"] && $_POST["ID"]) {
 						data-filename="<?=$arFile["ORIGINAL_NAME"]?>"
 						data-src="<?=$arFile["SRC"]?>"
 						<?=($isImage) ? ' data-image="data-image" ': ''?>
+						<?=($arFile["WIDTH"] > $IMG_MAXWIDTH) ? ' data-maxwidth="'. $IMG_MAXWIDTH .'" ' : ''?>
 					>
 					<?if ($isImage):?>
 						<img src="<?=$arFile["SRC"]?>" alt="<?=$arFile["ORIGINAL_NAME"]?>" title="<?=$arFile["ORIGINAL_NAME"]?>"/>
