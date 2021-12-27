@@ -1,68 +1,95 @@
 <?php
-global $MESS;
 
-$langPath = str_replace("\\", "/", __FILE__);
-$langPath = substr(
-	$langPath,
-	0,
-	strlen($langPath) - strlen("/install/index.php")
-);
-include(GetLangFileName($langPath . "/lang/", "/install/index.php"));
+use Bitrix\Main\Application;
+use Bitrix\Main\EventManager;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
 
-class nauka_attachments extends CModule {
-	var $MODULE_ID = "nauka.attachments";
-	var $MODULE_VERSION;
-	var $MODULE_VERSION_DATE;
-	var $MODULE_NAME;
-	var $MODULE_DESCRIPTION;
-	var $MODULE_CSS;
-	var $INSTALL_DIR;
+Loc::loadMessages(__FILE__);
 
-	public function __construct() {
-		$arModuleVersion = array();
-		$this->INSTALL_DIR = str_replace("\\", "/", __DIR__);
-		
-		include($this->INSTALL_DIR."/version.php");
-		
-		$this->MODULE_VERSION = $arModuleVersion["VERSION"];
-		$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
-		
-		$this->MODULE_NAME = getMessage('NAUKA_ATTACHMENTS_MODULE_NAME');
-		$this->MODULE_DESCRIPTION = getMessage('NAUKA_ATTACHMENTS_MODULE_DESCRIPTION');
-		
-		$this->PARTNER_NAME = "Баташев Антон";
-		$this->PARTNER_URI = "https://npo-nauka.ru";
+class nauka_attachments extends \CModule
+{
+	public $MODULE_ID = 'nauka.attachments';
+	public $MODULE_VERSION;
+	public $MODULE_VERSION_DATE;
+	public $MODULE_NAME;
+	public $MODULE_DESCRIPTION;
+	public $PARTNER_NAME;
+	public $PARTNER_URI;
+
+	/** @var string */
+	protected $installDir = '';
+
+	public function __construct()
+	{
+		$this->installDir = str_replace("\\", "/", __DIR__);
+
+		$arModuleVersion = [];
+		include($this->installDir . '/version.php');
+
+		$this->MODULE_VERSION = $arModuleVersion['VERSION'];
+		$this->MODULE_VERSION_DATE = $arModuleVersion['VERSION_DATE'];
+
+		$this->MODULE_NAME = Loc::getMessage('NAUKA_ATTACHMENTS_MODULE_NAME');
+		$this->MODULE_DESCRIPTION = Loc::getMessage('NAUKA_ATTACHMENTS_MODULE_DESCRIPTION');
+
+		$this->PARTNER_NAME = Loc::getMessage('NAUKA_ATTACHMENTS_PARTNER_NAME');
+		$this->PARTNER_URI = Loc::getMessage('NAUKA_ATTACHMENTS_PARTNER_URI');
 	}
 
-	public function InstallFiles() {
-		CopyDirFiles($this->INSTALL_DIR."/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/");
-		CopyDirFiles($this->INSTALL_DIR."/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/".$this->MODULE_ID);
-		CopyDirFiles($this->INSTALL_DIR."/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js/".$this->MODULE_ID);
-		
-		return true;
-	}
-	
-	public function UnInstallFiles() {
-		DeleteDirFiles($this->INSTALL_DIR."/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-		DeleteDirFilesEx("/bitrix/js/".$this->MODULE_ID);
-		DeleteDirFilesEx("/bitrix/images/".$this->MODULE_ID);
-		
-		return true;
+	public function doInstall()
+	{
+		$this->installEvents();
+		$this->installFiles();
+
+		ModuleManager::registerModule($this->MODULE_ID);
 	}
 
-	public function DoInstall() {
-		RegisterModule($this->MODULE_ID);
-		
-		RegisterModuleDependences("fileman", "OnBeforeHTMLEditorScriptRuns", $this->MODULE_ID, "CNaukaAttachments", "OnBeforeHTMLEditorScriptRunsHandler" );
-		
-		$this->InstallFiles();
+	public function doUninstall()
+	{
+		$this->uninstallEvents();
+		$this->uninstallFiles();
+
+		ModuleManager::unRegisterModule($this->MODULE_ID);
 	}
 
-	public function DoUninstall() {
-		UnRegisterModuleDependences("fileman", "OnBeforeHTMLEditorScriptRuns", $this->MODULE_ID, "CNaukaAttachments", "OnBeforeHTMLEditorScriptRunsHandler" );
-		
-		UnRegisterModule($this->MODULE_ID);
-		
-		$this->UnInstallFiles();
+	public function installEvents()
+	{
+		EventManager::getInstance()->registerEventHandler(
+			'fileman',
+			'OnBeforeHTMLEditorScriptRuns',
+			$this->MODULE_ID,
+			'Nauka\\Attachments\\EventHandler',
+			'onBeforeHTMLEditorScriptRunsHandler'
+		);
+	}
+
+	public function uninstallEvents()
+	{
+		EventManager::getInstance()->unRegisterEventHandler(
+			'fileman',
+			'OnBeforeHTMLEditorScriptRuns',
+			$this->MODULE_ID,
+			'Nauka\\Attachments\\EventHandler',
+			'onBeforeHTMLEditorScriptRunsHandler'
+		);
+	}
+
+	public function installFiles()
+	{
+		$docRoot = Application::getDocumentRoot();
+
+		\CopyDirFiles($this->installDir .'/admin', $docRoot .'/bitrix/admin/');
+		\CopyDirFiles($this->installDir .'/images', $docRoot .'/bitrix/images/'. $this->MODULE_ID);
+		\CopyDirFiles($this->installDir .'/js', $docRoot .'/bitrix/js/'. $this->MODULE_ID);
+	}
+
+	public function uninstallFiles()
+	{
+		$docRoot = Application::getDocumentRoot();
+
+		\DeleteDirFiles($this->installDir .'/admin/', $docRoot .'/bitrix/admin');
+		\DeleteDirFilesEx('/bitrix/js/'. $this->MODULE_ID);
+		\DeleteDirFilesEx('/bitrix/images/'. $this->MODULE_ID);
 	}
 }

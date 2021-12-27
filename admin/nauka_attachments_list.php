@@ -1,51 +1,68 @@
-<?php require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+<?php
 
-IncludeModuleLangFile(__FILE__);
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 
-if ($_POST["IBLOCK_ID"] && $_POST["ID"]) {
+require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_admin_before.php");
 
-	$IBLOCK_ID = intval($_POST["IBLOCK_ID"]);
-	$ID = intval($_POST["ID"]);
-	$PROPERTY_CODE = "FILES";
-	$IMG_MAXWIDTH = 600;
+Loc::loadMessages(__FILE__);
 
-	if (CModule::IncludeModule("iblock")) {
+$post = Context::getCurrent()->getRequest()->getPostList();
 
-		$res = CIBlockElement::GetProperty(
-			$IBLOCK_ID,
-			$ID,
-			array("SORT" => "ASC"),
-			array("CODE" => $PROPERTY_CODE)
-		);
-		$arFiles = array();
-		while ($arItem = $res->GetNext()) {
-			if ($arItem["VALUE"]) {
-				$arFiles[] = CFile::GetFileArray($arItem["VALUE"]);
-			}
-		}
-		if ($arFiles) {
-			foreach ($arFiles as $arFile) {
-				$isImage = strpos($arFile["CONTENT_TYPE"], "image/") === 0;
-				?>
-					<div
-						class="insert-file"
-						data-filename="<?=$arFile["ORIGINAL_NAME"]?>"
-						data-src="<?=$arFile["SRC"]?>"
-						<?=($isImage) ? ' data-image="data-image" ': ''?>
-						<?=($arFile["WIDTH"] > $IMG_MAXWIDTH) ? ' data-maxwidth="'. $IMG_MAXWIDTH .'" ' : ''?>
-					>
-					<?if ($isImage):?>
-						<img src="<?=$arFile["SRC"]?>" alt="<?=$arFile["ORIGINAL_NAME"]?>" title="<?=$arFile["ORIGINAL_NAME"]?>"/>
-					<?else:?>
-						<div><?=$arFile["ORIGINAL_NAME"]?></div>
-					<?endif;?>
-					</div>
-				<?
-			}
-		} else {
-			echo GetMessage("NAUKA_ATTACHMENTS_NO_SAVED_FILES");
-		}
+$iblockId = (int) $post['IBLOCK_ID'];
+$elementId = (int) $post['ID'];
 
-	}
-
+if ($iblockId < 1 || $elementId < 1) {
+	return;
 }
+
+if (!Loader::includeModule('iblock')) {
+	return;
+}
+
+if (!\CIBlockElementRights::UserHasRightTo($iblockId, $elementId, 'element_edit')) {
+	return;
+}
+
+$propertyCode = 'FILES';
+$imgMaxWidth = 600;
+
+$res = \CIBlockElement::GetProperty(
+	$iblockId,
+	$elementId,
+	['SORT' => 'ASC'],
+	['CODE' => $propertyCode]
+);
+
+$files = [];
+
+while ($item = $res->GetNext()) {
+	if ($item['VALUE']) {
+		$files[] = CFile::GetFileArray($item['VALUE']);
+	}
+}
+
+if (empty($files)) {
+	echo Loc::getMessage('NAUKA_ATTACHMENTS_NO_SAVED_FILES');
+	return;
+}
+
+foreach ($files as $file) :
+	$isImage = strpos($file['CONTENT_TYPE'], 'image/') === 0;
+	?>
+	<div
+		class="insert-file"
+		data-filename="<?=$file['ORIGINAL_NAME']?>"
+		data-src="<?=$file['SRC']?>"
+		<?=($isImage) ? ' data-image="data-image" ': ''?>
+		<?=($file['WIDTH'] > $imgMaxWidth) ? ' data-maxwidth="'. $imgMaxWidth .'" ' : ''?>
+	>
+	<?php if ($isImage):?>
+		<img src="<?=$file['SRC']?>" alt="<?=$file['ORIGINAL_NAME']?>" title="<?=$file['ORIGINAL_NAME']?>"/>
+	<?php else:?>
+		<div><?=$file['ORIGINAL_NAME']?></div>
+	<?php endif;?>
+	</div>
+	<?php
+endforeach;
