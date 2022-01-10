@@ -66,6 +66,15 @@ class nauka_attachments extends \CModule
 
 	public function uninstallEvents()
 	{
+		// Старая версия события
+		EventManager::getInstance()->unRegisterEventHandler(
+			'fileman',
+			'OnBeforeHTMLEditorScriptRuns',
+			$this->MODULE_ID,
+			'CNaukaAttachments',
+			'OnBeforeHTMLEditorScriptRunsHandler'
+		);
+
 		EventManager::getInstance()->unRegisterEventHandler(
 			'fileman',
 			'OnBeforeHTMLEditorScriptRuns',
